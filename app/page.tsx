@@ -41,11 +41,20 @@ export default function Home() {
 
       if (insertError) {
         setLoading(false);
-        setStatusMessage({
-          type: 'error',
-          title: 'Database Insert Failed',
-          detail: `${insertError.message} (Code: ${insertError.code || 'UNKNOWN'})`,
-        });
+        // Check for Postgres Unique Constraint Error (Duplicate Email)
+        if (insertError.code === '23505') {
+          setStatusMessage({
+            type: 'error',
+            title: 'Already Registered',
+            detail: 'You are already on the waitlist! Keep an eye on your inbox for updates.',
+          });
+        } else {
+          setStatusMessage({
+            type: 'error',
+            title: 'Database Insert Failed',
+            detail: `${insertError.message} (Code: ${insertError.code || 'UNKNOWN'})`,
+          });
+        }
         return;
       }
 
@@ -96,11 +105,20 @@ export default function Home() {
       setLoading(false);
 
       if (insertError) {
-        setStatusMessage({
-          type: 'error',
-          title: 'Submission Rejected',
-          detail: `${insertError.message} (Code: ${insertError.code || 'UNKNOWN'})`,
-        });
+        // Check for Postgres Unique Constraint Error (Duplicate Email)
+        if (insertError.code === '23505') {
+          setStatusMessage({
+            type: 'error',
+            title: 'Application Already Exists',
+            detail: 'This clinic email is already registered. Our team will be in touch soon!',
+          });
+        } else {
+          setStatusMessage({
+            type: 'error',
+            title: 'Submission Rejected',
+            detail: `${insertError.message} (Code: ${insertError.code || 'UNKNOWN'})`,
+          });
+        }
       } else {
         setStatusMessage({
           type: 'success',
@@ -174,8 +192,27 @@ export default function Home() {
               Qlin eliminates crowded reception rooms and unpredictable waiting times. Patients register remotely, track live positions from anywhere, and activate their physical position upon arrival.
             </p>
 
+            {/* YouTube Call To Action Button */}
+            <div className="pt-2">
+              <a
+                href="https://www.youtube.com/watch?v=pGjz4I_77oM"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-md"
+              >
+                <svg
+                  className="w-5 h-5 fill-current"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                Watch Demo Video
+              </a>
+            </div>
+
             {/* Core Pillars */}
-            <div className="grid sm:grid-cols-3 gap-4 pt-2">
+            <div className="grid sm:grid-cols-3 gap-4 pt-4">
               <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-md">
                 <div className="text-blue-400 font-bold text-base mb-1">1. Remote Hold</div>
                 <div className="text-xs text-slate-400 leading-normal">Claim an estimated slot online before traveling to the clinic.</div>
@@ -277,14 +314,14 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Email or Phone *</label>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Email *</label>
                     <input
-                      type="text"
+                      type="email"
                       required
                       value={patientForm.contact_info}
                       onChange={(e) => setPatientForm({ ...patientForm, contact_info: e.target.value })}
                       className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition text-sm"
-                      placeholder="jane@example.com or +1 555-0192"
+                      placeholder="jane@example.com"
                     />
                   </div>
 
@@ -416,6 +453,27 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Embedded YouTube Section Below the Main Grid */}
+        <div className="mt-24 pt-12 border-t border-slate-800/80 w-full max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            See How Qlin Works
+          </h2>
+          <p className="text-gray-400 text-sm mb-8">
+            Watch a quick walkthrough of our queue management system.
+          </p>
+
+          <div className="w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl aspect-video bg-black/40">
+            <iframe
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/pGjz4I_77oM"
+              title="Qlin Demo Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+
       </main>
     </div>
   );
